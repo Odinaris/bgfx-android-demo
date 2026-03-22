@@ -27,7 +27,7 @@ class MainActivity : AppCompatActivity(), SurfaceHolder.Callback {
         isBgfxInitialized = initBgfx(width, height, holder.surface)
         if (isBgfxInitialized) {
             // Start rendering loop
-            renderBgfx()
+            startRenderLoop()
         }
     }
 
@@ -42,12 +42,12 @@ class MainActivity : AppCompatActivity(), SurfaceHolder.Callback {
         }
     }
 
-    private fun renderBgfx() {
+    private fun startRenderLoop() {
         if (isBgfxInitialized) {
             // Render one frame
-            renderBgfx()
+            renderBgfxFrame()
             // Schedule next frame
-            binding.surfaceView.post { renderBgfx() }
+            binding.surfaceView.post { startRenderLoop() }
         }
     }
 
@@ -86,7 +86,7 @@ class MainActivity : AppCompatActivity(), SurfaceHolder.Callback {
     /**
      * Render one frame
      */
-    external fun renderBgfx()
+    external fun renderBgfxFrame()
 
     /**
      * Check if bgfx is initialized

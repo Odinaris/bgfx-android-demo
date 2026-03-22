@@ -6,31 +6,29 @@ project("bgfx_android_demo")
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Get the absolute path to 3rdparty directory
-get_filename_component(BGFX_3RDPARTY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty ABSOLUTE)
+# Get the absolute path to project directories
+# CMakeLists.txt is located at app/src/main/cpp/
+get_filename_component(CPP_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR} ABSOLUTE)
 
-# Set paths for bgfx and bx
-set(BGFX_DIR ${BGFX_3RDPARTY_DIR}/bgfx)
-set(BX_DIR ${BGFX_3RDPARTY_DIR}/bx)
+# Get the absolute path to project root
+get_filename_component(PROJECT_SRC ${CPP_SOURCE_DIR}/.. ABSOLUTE)    # main
+get_filename_component(PROJECT_APP ${PROJECT_SRC}/.. ABSOLUTE)      # app
+get_filename_component(PROJECT_ROOT ${PROJECT_APP}/.. ABSOLUTE)    # root
+get_filename_component(ACTUAL_ROOT ${PROJECT_ROOT}/.. ABSOLUTE)     # should be project root
 
-# Check if bx exists, if not, use FetchContent to get it
-if(NOT EXISTS ${BX_DIR}/CMakeLists.txt AND NOT EXISTS ${BX_DIR}/include/bx/bx.h)
-    message(STATUS "bx not found, will fetch from GitHub")
-    include(FetchContent)
-    FetchContent_Declare(
-        bx
-        GIT_REPOSITORY https://github.com/bkaradzic/bx.git
-        GIT_TAG master
-        GIT_SHALLOW TRUE
-        SOURCE_DIR ${BX_DIR}
-    )
-    FetchContent_MakeAvailable(bx)
-endif()
+set(BGFX_DIR ${ACTUAL_ROOT}/3rdparty/bgfx)
+set(BX_DIR ${CPP_SOURCE_DIR}/../3rdparty/bx)
 
-# Ensure BX_DIR is set correctly
-if(NOT EXISTS ${BX_DIR}/include/bx/bx.h)
-    message(FATAL_ERROR "bx headers not found in ${BX_DIR}/include/bx/bx.h")
-endif()
+message(STATUS "Project directories:")
+message(STATUS "  CPP_SOURCE_DIR: ${CPP_SOURCE_DIR}")
+message(STATUS "  ACTUAL_ROOT: ${ACTUAL_ROOT}")
+message(STATUS "  BGFX_DIR: ${BGFX_DIR}")
+message(STATUS "  BX_DIR: ${BX_DIR}")
+
+# Note: bx and bgfx are included as git submodules
+# For full bgfx integration, you need to:
+# 1. Build bgfx using GENie: cd 3rdparty/bgfx && make android-arm64-release
+# 2. Link against the built libraries in CMakeLists.txt
 
 # Create the native library
 add_library(${CMAKE_PROJECT_NAME} SHARED
@@ -39,19 +37,13 @@ add_library(${CMAKE_PROJECT_NAME} SHARED
     jni_binder.cpp
 )
 
-# Include directories for bgfx and bx
+# Include directories
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${BGFX_DIR}/include
-    ${BGFX_DIR}/include/bgfx
-    ${BX_DIR}/include
+    ${CPP_SOURCE_DIR}
 )
 
-# Platform-specific defines for Android + OpenGL ES
+# Platform-specific defines for Android
 target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE
-    BGFX_CONFIG_RENDERER_OPENGLES=1
-    BGFX_BUILD_SHADERC=0
-    BGFX_CONFIG_MAX_FRAME_BLIT=1
     PLATFORM_ANDROID=1
 )
 

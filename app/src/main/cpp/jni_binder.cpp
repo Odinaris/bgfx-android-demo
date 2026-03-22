@@ -37,7 +37,7 @@ Java_com_odinaris_bgfx_1android_1demo_MainActivity_shutdownBgfx(JNIEnv* env, job
 }
 
 JNIEXPORT void JNICALL
-Java_com_odinaris_bgfx_1android_1demo_MainActivity_renderBgfx(JNIEnv* env, jobject thiz)
+Java_com_odinaris_bgfx_1android_1demo_MainActivity_renderBgfxFrame(JNIEnv* env, jobject thiz)
 {
     if (s_renderer != nullptr) {
         s_renderer->render();

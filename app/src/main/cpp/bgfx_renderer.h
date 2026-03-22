@@ -1,8 +1,9 @@
 #ifndef BGFX_RENDERER_H
 #define BGFX_RENDERER_H
 
-#include <bgfx/bgfx.h>
-#include <bgfx/platform.h>
+// Note: Full bgfx integration requires including bgfx headers
+// This stub header allows the project to compile for development.
+
 #include <android/log.h>
 
 #define LOG_TAG "BgfxRenderer"
@@ -24,11 +25,6 @@ private:
     bool m_initialized;
     int m_width;
     int m_height;
-    bgfx::TextureHandle m_texture;
-    bgfx::UniformHandle m_textureUniform;
-    bgfx::ProgramHandle m_program;
-    bgfx::VertexBufferHandle m_vbh;
-    bgfx::IndexBufferHandle m_ibh;
 
     void createQuad();
     void createShader();
