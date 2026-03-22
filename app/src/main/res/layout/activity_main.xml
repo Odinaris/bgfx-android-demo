@@ -1,11 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<!--
+  =============================================================================
+  activity_main.xml - 主界面布局文件
+  
+  本文件定义了 MainActivity 的 UI 布局。
+  
+  【布局结构】
+  ┌──────────────────────────────────────┐
+  │  ConstraintLayout (根容器)            │
+  │  ┌────────────────────────────────┐ │
+  │  │  SurfaceView (渲染画布)         │ │
+  │  │  填充满整个父容器                │ │
+  │  │                                │ │
+  │  │  bgfx 渲染内容将显示在这里      │ │
+  │  │                                │ │
+  │  │                                │ │
+  │  └────────────────────────────────┘ │
+  └──────────────────────────────────────┘
+  
+  【为什么使用 SurfaceView？】
+  - SurfaceView 拥有独立的 Surface（表面），可以在独立于主 UI 线程的线程中渲染
+  - 这对于图形渲染至关重要，因为：
+    1. 渲染操作可能耗时较长，不能阻塞 UI 线程
+    2. 图形 API（如 OpenGL ES）需要持续的渲染循环
+    3. SurfaceView 与 Window Manager 配合更好，不会导致 UI 卡顿
+  
+  【SurfaceView 工作原理】
+  1. Surface 是双缓冲机制（前端缓冲区 + 后端缓冲区）
+  2. 渲染线程绘制到后端缓冲区
+  3. 绘制完成后，交换前后缓冲区，显示新内容
+  4. 这个过程与显示器的刷新率同步（通常 60fps）
+  
+  【View vs SurfaceView】
+  ┌─────────────────┬─────────────────┐
+  │     View        │   SurfaceView    │
+  ├─────────────────┼─────────────────┤
+  │ 在 UI 线程绘制   │ 在独立线程绘制    │
+  │ 每次绘制需重绘   │ 可持续渲染        │
+  │ 适合静态内容     │ 适合动画/游戏     │
+  │ 无双缓冲        │ 有双缓冲         │
+  └─────────────────┴─────────────────┘
+  
+  =============================================================================
+-->
+<androidx.constraintlayout.widget.ConstraintLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <!--
+      SurfaceView - 图形渲染画布
+      
+      【关键属性说明】
+      
+      android:layout_width="match_parent"
+      → 宽度填充满父容器（屏幕宽度）
+      
+      android:layout_height="match_parent"
+      → 高度填充满父容器（屏幕高度）
+      
+      android:id="@+id/surface_view"
+      → 设置唯一 ID，在 Kotlin 代码中可通过 binding.surfaceView 访问
+      → "@+id" 表示创建新 ID，"@id" 表示引用已有 ID
+      
+      【关于 match_parent vs wrap_content】
+      - 对于 SurfaceView，几乎总是使用 match_parent
+      - 因为渲染内容需要填满可用空间
+      - wrap_content 会导致尺寸为 0，无法正常渲染
+    -->
     <SurfaceView
         android:id="@+id/surface_view"
         android:layout_width="match_parent"
