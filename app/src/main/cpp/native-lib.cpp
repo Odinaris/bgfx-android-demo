@@ -1,10 +1,3 @@
-#include <jni.h>
-#include <string>
-
-extern "C" JNIEXPORT jstring JNICALL
-Java_com_odinaris_bgfx_1android_1demo_MainActivity_stringFromJNI(
-        JNIEnv* env,
-        jobject /* this */) {
-    std::string hello = "Hello from C++";
-    return env->NewStringUTF(hello.c_str());
-}
+// This file serves as a placeholder for native library entry point.
+// The actual JNI bindings are defined in jni_binder.cpp
+// which handles all bgfx rendering callbacks from Java/Kotlin.

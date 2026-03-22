@@ -1,37 +1,63 @@
-# For more information about using CMake with Android Studio, read the
-# documentation: https://d.android.com/studio/projects/add-native-code.html.
-# For more examples on how to use CMake, see https://github.com/android/ndk-samples.
-
-# Sets the minimum CMake version required for this project.
 cmake_minimum_required(VERSION 3.22.1)
 
-# Declares the project name. The project name can be accessed via ${ PROJECT_NAME},
-# Since this is the top level CMakeLists.txt, the project name is also accessible
-# with ${CMAKE_PROJECT_NAME} (both CMake variables are in-sync within the top level
-# build script scope).
 project("bgfx_android_demo")
 
-# Creates and names a library, sets it as either STATIC
-# or SHARED, and provides the relative paths to its source code.
-# You can define multiple libraries, and CMake builds them for you.
-# Gradle automatically packages shared libraries with your APK.
-#
-# In this top level CMakeLists.txt, ${CMAKE_PROJECT_NAME} is used to define
-# the target library name; in the sub-module's CMakeLists.txt, ${PROJECT_NAME}
-# is preferred for the same purpose.
-#
-# In order to load a library into your app from Java/Kotlin, you must call
-# System.loadLibrary() and pass the name of the library defined here;
-# for GameActivity/NativeActivity derived applications, the same library name must be
-# used in the AndroidManifest.xml file.
-add_library(${CMAKE_PROJECT_NAME} SHARED
-        # List C/C++ source files with relative paths to this CMakeLists.txt.
-        native-lib.cpp)
+# Set C++ standard
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Specifies libraries CMake should link to your target library. You
-# can link libraries from various origins, such as libraries defined in this
-# build script, prebuilt third-party libraries, or Android system libraries.
+# Get the absolute path to 3rdparty directory
+get_filename_component(BGFX_3RDPARTY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty ABSOLUTE)
+
+# Set paths for bgfx and bx
+set(BGFX_DIR ${BGFX_3RDPARTY_DIR}/bgfx)
+set(BX_DIR ${BGFX_3RDPARTY_DIR}/bx)
+
+# Check if bx exists, if not, use FetchContent to get it
+if(NOT EXISTS ${BX_DIR}/CMakeLists.txt AND NOT EXISTS ${BX_DIR}/include/bx/bx.h)
+    message(STATUS "bx not found, will fetch from GitHub")
+    include(FetchContent)
+    FetchContent_Declare(
+        bx
+        GIT_REPOSITORY https://github.com/bkaradzic/bx.git
+        GIT_TAG master
+        GIT_SHALLOW TRUE
+        SOURCE_DIR ${BX_DIR}
+    )
+    FetchContent_MakeAvailable(bx)
+endif()
+
+# Ensure BX_DIR is set correctly
+if(NOT EXISTS ${BX_DIR}/include/bx/bx.h)
+    message(FATAL_ERROR "bx headers not found in ${BX_DIR}/include/bx/bx.h")
+endif()
+
+# Create the native library
+add_library(${CMAKE_PROJECT_NAME} SHARED
+    native-lib.cpp
+    bgfx_renderer.cpp
+    jni_binder.cpp
+)
+
+# Include directories for bgfx and bx
+target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${BGFX_DIR}/include
+    ${BGFX_DIR}/include/bgfx
+    ${BX_DIR}/include
+)
+
+# Platform-specific defines for Android + OpenGL ES
+target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE
+    BGFX_CONFIG_RENDERER_OPENGLES=1
+    BGFX_BUILD_SHADERC=0
+    BGFX_CONFIG_MAX_FRAME_BLIT=1
+    PLATFORM_ANDROID=1
+)
+
+# Link libraries
 target_link_libraries(${CMAKE_PROJECT_NAME}
-        # List libraries link to the target library
-        android
-        log)
+    PRIVATE
+    android
+    log
+)

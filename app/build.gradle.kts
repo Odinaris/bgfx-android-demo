@@ -37,7 +37,17 @@ android {
         cmake {
             path = file("src/main/cpp/CMakeLists.txt")
             version = "3.22.1"
+            arguments += listOf(
+                "-DANDROID_STL=c++_shared",
+                "-DANDROID_PLATFORM=android-34",
+                "-DANDROID_ARM_MODE=arm",
+                "-DANDROID_TOOLCHAIN=clang"
+            )
         }
+    }
+    ndk {
+        version = "27.0.12077973"
+        abiFilters += listOf("arm64-v8a", "armeabi-v7a")
     }
     buildFeatures {
         viewBinding = true
