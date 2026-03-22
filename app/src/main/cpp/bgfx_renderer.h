@@ -56,6 +56,11 @@
 // 这是 Android NDK 提供的标准日志接口，用于在原生代码中输出日志
 #include <android/log.h>
 
+// bgfx 核心头文件
+#include <bgfx/bgfx.h>
+// bx 数学库头文件（用于矩阵运算）
+#include <bx/math.h>
+
 // =============================================================================
 // 日志宏定义
 // =============================================================================
@@ -194,29 +199,50 @@ private:
     
     /** @brief 渲染目标高度（像素） */
     int m_height;
+    
+    /** @brief 原生窗口指针（ANativeWindow*） */
+    void* m_window;
+    
+    /** @brief 顶点缓冲区句柄 */
+    bgfx::VertexBufferHandle m_vbh;
+    
+    /** @brief 索引缓冲区句柄 */
+    bgfx::IndexBufferHandle m_ibh;
+    
+    /** @brief 着色器程序句柄 */
+    bgfx::ProgramHandle m_program;
+    
+    /** @brief 视图矩阵 */
+    float m_viewMatrix[16];
+    
+    /** @brief 投影矩阵 */
+    float m_projMatrix[16];
+    
+    /** @brief 累积时间（用于旋转动画） */
+    float m_time;
 
     // =========================================================================
-    // 私有方法（供未来扩展）
+    // 私有方法
     // =========================================================================
     
     /**
-     * @brief 创建四边形/矩形几何体
+     * @brief 创建三角形几何体
      * 
-     * 在 initialize() 中调用，创建用于渲染的几何数据。
-     * 完整实现应包含：
-     * - 定义顶点格式（位置、颜色、UV 等）
-     * - 创建顶点缓冲区
-     * - 创建索引缓冲区
+     * 在 initialize() 中调用，创建用于渲染的顶点缓冲区和索引缓冲区。
      */
-    void createQuad();
+    void createTriangle();
     
     /**
-     * @brief 创建着色器程序
+     * @brief 创建内嵌着色器
      * 
-     * 在 initialize() 中调用，加载或编译顶点/片元着色器。
-     * bgfx 使用预编译的 .bin 格式着色器文件（由 shaderc 工具生成）。
+     * 使用 bgfx 的内嵌着色器机制，创建简单的彩色三角形着色器。
      */
     void createShader();
+    
+    /**
+     * @brief 提交一帧渲染
+     */
+    void submitFrame();
 };
 
 #endif // BGFX_RENDERER_H

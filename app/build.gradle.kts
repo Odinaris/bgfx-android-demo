@@ -153,8 +153,11 @@ android {
              * 每个 ABI 都会生成对应的 .so 文件：
              * lib/arm64-v8a/libbgfx_android_demo.so
              * lib/armeabi-v7a/libbgfx_android_demo.so
+             * 
+             * 【注意】当前仅构建了 arm64-v8a 的 bgfx 预编译库，
+             * 因此暂时只支持 arm64-v8a 架构。
              */
-            abiFilters += listOf("arm64-v8a", "armeabi-v7a")
+            abiFilters += listOf("arm64-v8a")
         }
     }
 
